@@ -1,3 +1,5 @@
+import { IParams, IResult } from './type'
+
 // 回调函数标识
 let callbackId = 0
 // 回调函数
@@ -28,4 +30,35 @@ const invoke = (method: string, params?: any, func?: (params: any) => void) => {
   } catch (error) {
     console.error(`JavaScript 调用 flutter 方法 ${method} 失败。原因：${error}`)
   }
+}
+
+/**
+ * js 调用 flutter 方法
+ * @param event - 方法名
+ * @param data 可选，参数
+ * @returns 
+ */
+export const jsHandler = (event: string, data: IParams = {}): Promise<IResult> => {
+  return new Promise(resolve => {
+    invoke(event, data, res => {
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 此方法为 flutter 调用 js
+ * @param res
+ */
+export const receiveMessage = (res: IParams): void => {
+  const { callbackId, data } = res;
+
+    if (callbackId > -1) {
+      callback[callbackId](data);
+    }
+}
+
+window.FlutterJSBridge = {
+  jsHandler,
+  receiveMessage
 }
